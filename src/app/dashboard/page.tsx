@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import Link from "next/link";
 import {
   LineChart,
   Line,
@@ -75,10 +75,14 @@ useEffect(() => {
             <h1 className="text-2xl font-bold">InsightIQ</h1>
   
             <nav className="mt-10 space-y-3 text-sm text-slate-300">
-              <p className="rounded-lg bg-slate-800 px-4 py-2 text-white">Dashboard</p>
-              <p className="px-4 py-2">Upload Data</p>
-              <p className="px-4 py-2">AI Insights</p>
-              <p className="px-4 py-2">Reports</p>
+                <Link href="/dashboard" className="block rounded-lg bg-slate-800 px-4 py-2 text-white">
+                    Dashboard
+                </Link>
+                <Link href="/upload" className="block px-4 py-2 hover:text-white">
+                    Upload Data
+                </Link>
+                <p className="px-4 py-2">AI Insights</p>
+                <p className="px-4 py-2">Reports</p>
             </nav>
           </aside>
   
@@ -91,6 +95,22 @@ useEffect(() => {
                 Track business performance, upload data, and generate AI-powered insights.
               </p>
             </div>
+
+            {data.length === 0 && (
+                <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+                    <h3 className="text-xl font-semibold">No data uploaded yet</h3>
+                    <p className="mt-2 text-slate-400">
+                    Upload a CSV file to generate dashboard metrics and AI-ready insights.
+                    </p>
+
+                    <Link
+                    href="/upload"
+                    className="mt-5 inline-block rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950 hover:bg-cyan-300"
+                    >
+                    Upload Data
+                    </Link>
+                </div>
+            )}
   
             {/* KPI Cards */}
             <div className="grid gap-6 md:grid-cols-4">
