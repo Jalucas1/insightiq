@@ -13,6 +13,8 @@ type BusinessRow = {
 
 export default function InsightsPage() {
   const [data, setData] = useState<BusinessRow[]>([]);
+  const [aiResult, setAiResult] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedData = localStorage.getItem("insightiq-data");
@@ -27,6 +29,37 @@ export default function InsightsPage() {
   const totalCustomers = data.reduce((sum, row) => sum + row.customers, 0);
   const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
+  async function generateInsights() {
+    try {
+      setLoading(true);
+      setAiResult("");
+
+      const res = await fetch("/api/insights", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data }),
+      });
+
+      const result = await res.json();
+
+      console.log("API response:", result);
+
+      if (!res.ok) {
+        setAiResult(result.error || "Something went wrong with the API.");
+        return;
+      }
+
+      setAiResult(result.result || "No result was returned from the AI API.");
+    } catch (error) {
+      console.error("Frontend error:", error);
+      setAiResult("Unable to generate insights. Check the console or terminal.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="flex">
@@ -37,12 +70,18 @@ export default function InsightsPage() {
             <Link href="/dashboard" className="block px-4 py-2 hover:text-white">
               Dashboard
             </Link>
+
             <Link href="/upload" className="block px-4 py-2 hover:text-white">
               Upload Data
             </Link>
-            <Link href="/insights" className="block rounded-lg bg-slate-800 px-4 py-2 text-white">
+
+            <Link
+              href="/insights"
+              className="block rounded-lg bg-slate-800 px-4 py-2 text-white"
+            >
               AI Insights
             </Link>
+
             <p className="px-4 py-2">Reports</p>
           </nav>
         </aside>
@@ -50,9 +89,11 @@ export default function InsightsPage() {
         <section className="flex-1 p-8">
           <div className="mb-8">
             <p className="text-sm text-cyan-400">AI Insights</p>
-            <h2 className="mt-2 text-4xl font-bold">Business recommendations</h2>
+            <h2 className="mt-2 text-4xl font-bold">
+              Business recommendations
+            </h2>
             <p className="mt-2 text-slate-400">
-              Review AI-ready insights based on your uploaded business data.
+              Generate AI-powered recommendations based on your uploaded data.
             </p>
           </div>
 
@@ -60,7 +101,7 @@ export default function InsightsPage() {
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
               <h3 className="text-xl font-semibold">No data available</h3>
               <p className="mt-2 text-slate-400">
-                Upload a CSV file first so InsightIQ can generate recommendations.
+                Upload a CSV file first.
               </p>
 
               <Link
@@ -94,23 +135,29 @@ export default function InsightsPage() {
               </div>
 
               <div className="rounded-2xl border border-cyan-400/20 bg-slate-900 p-6 lg:col-span-3">
-                <h3 className="text-2xl font-semibold">Generated Insight</h3>
-                <p className="mt-4 leading-7 text-slate-300">
-                  Revenue is trending positively based on the uploaded dataset.
-                  Email appears to be a strong-performing source, while average
-                  order value should be monitored for opportunities to increase
-                  customer spend.
-                </p>
-              </div>
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <h3 className="text-2xl font-semibold">
+                    Generated Insight
+                  </h3>
 
-              <div className="rounded-2xl bg-slate-900 p-6 lg:col-span-3">
-                <h3 className="text-2xl font-semibold">Recommended Actions</h3>
+                  <button
+                    onClick={generateInsights}
+                    disabled={loading}
+                    className="rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-60"
+                  >
+                    {loading ? "Generating..." : "Generate AI Insights"}
+                  </button>
+                </div>
 
-                <ul className="mt-4 space-y-3 text-slate-300">
-                  <li>• Increase focus on high-performing traffic sources.</li>
-                  <li>• Test bundled offers to improve average order value.</li>
-                  <li>• Compare revenue growth against customer growth monthly.</li>
-                </ul>
+                {loading ? (
+                  <p className="mt-6 text-slate-400">
+                    Generating insights...
+                  </p>
+                ) : (
+                  <p className="mt-6 whitespace-pre-line text-slate-300">
+                    {aiResult || "No AI insights generated yet."}
+                  </p>
+                )}
               </div>
             </div>
           )}
