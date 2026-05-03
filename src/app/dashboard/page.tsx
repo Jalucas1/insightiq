@@ -1,3 +1,30 @@
+"use client";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
+
+const revenueData = [
+    { month: "Jan", revenue: 28000, orders: 720 },
+    { month: "Feb", revenue: 31500, orders: 810 },
+    { month: "Mar", revenue: 29800, orders: 760 },
+    { month: "Apr", revenue: 38200, orders: 940 },
+    { month: "May", revenue: 48920, orders: 1248 },
+  ];
+  
+  const categoryData = [
+    { category: "Email", value: 42 },
+    { category: "Ads", value: 28 },
+    { category: "Organic", value: 18 },
+    { category: "Referral", value: 12 },
+  ];
+
 export default function DashboardPage() {
     return (
       <main className="min-h-screen bg-slate-950 text-white">
@@ -55,8 +82,20 @@ export default function DashboardPage() {
             <div className="mt-8 grid gap-6 lg:grid-cols-3">
               <div className="rounded-2xl bg-slate-900 p-6 lg:col-span-2">
                 <h3 className="text-xl font-semibold">Revenue Trend</h3>
-                <div className="mt-6 flex h-72 items-center justify-center rounded-xl border border-dashed border-slate-700 text-slate-500">
-                  Chart coming next
+                <div className="mt-6 h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={revenueData}>
+                        <XAxis dataKey="month" stroke="#94a3b8" />
+                        <YAxis stroke="#94a3b8" />
+                        <Tooltip />
+                        <Line
+                            type="monotone"
+                            dataKey="revenue"
+                            stroke="#22d3ee"
+                            strokeWidth={3}
+                        />
+                        </LineChart>
+                    </ResponsiveContainer>
                 </div>
               </div>
   
@@ -67,6 +106,19 @@ export default function DashboardPage() {
                   Consider bundling offers to increase customer spend.
                 </p>
               </div>
+            </div>
+            <div className="mt-8 rounded-2xl bg-slate-900 p-6">
+            <h3 className="text-xl font-semibold">Traffic Source Breakdown</h3>
+                <div className="mt-6 h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={categoryData}>
+                        <XAxis dataKey="category" stroke="#94a3b8" />
+                        <YAxis stroke="#94a3b8" />
+                        <Tooltip />
+                        <Bar dataKey="value" fill="#22d3ee" />
+                    </BarChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
           </section>
         </div>
