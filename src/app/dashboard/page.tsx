@@ -81,7 +81,9 @@ useEffect(() => {
                 <Link href="/upload" className="block px-4 py-2 hover:text-white">
                     Upload Data
                 </Link>
-                <p className="px-4 py-2">AI Insights</p>
+                <Link href="/insights" className="block px-4 py-2 hover:text-white">
+                    AI Insights
+                </Link>
                 <p className="px-4 py-2">Reports</p>
             </nav>
           </aside>
