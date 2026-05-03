@@ -1,4 +1,7 @@
 "use client";
+
+import { useEffect, useState } from "react";
+
 import {
   LineChart,
   Line,
@@ -9,6 +12,14 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+
+type BusinessRow = {
+    date: string;
+    revenue: number;
+    orders: number;
+    customers: number;
+    source: string;
+  };
 
 const revenueData = [
     { month: "Jan", revenue: 28000, orders: 720 },
@@ -26,6 +37,36 @@ const revenueData = [
   ];
 
 export default function DashboardPage() {
+    const [data, setData] = useState<BusinessRow[]>([]);
+
+useEffect(() => {
+  const savedData = localStorage.getItem("insightiq-data");
+
+    if (savedData) {
+        setData(JSON.parse(savedData));
+    }
+    }, []);
+
+    const totalRevenue = data.reduce((sum, row) => sum + row.revenue, 0);
+    const totalOrders = data.reduce((sum, row) => sum + row.orders, 0);
+    const totalCustomers = data.reduce((sum, row) => sum + row.customers, 0);
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+    const revenueData = data.map((row) => ({
+    month: new Date(row.date).toLocaleString("default", { month: "short" }),
+    revenue: row.revenue,
+    orders: row.orders,
+    }));
+
+    const sourceTotals = data.reduce<Record<string, number>>((acc, row) => {
+    acc[row.source] = (acc[row.source] || 0) + row.revenue;
+    return acc;
+    }, {});
+
+    const categoryData = Object.entries(sourceTotals).map(([category, value]) => ({
+    category,
+    value,
+    }));
     return (
       <main className="min-h-screen bg-slate-950 text-white">
         <div className="flex">
@@ -53,29 +94,37 @@ export default function DashboardPage() {
   
             {/* KPI Cards */}
             <div className="grid gap-6 md:grid-cols-4">
-              <div className="rounded-2xl bg-slate-900 p-6">
-                <p className="text-sm text-slate-400">Total Revenue</p>
-                <h3 className="mt-2 text-3xl font-bold">$48,920</h3>
-                <p className="mt-2 text-sm text-green-400">+18.4%</p>
-              </div>
-  
-              <div className="rounded-2xl bg-slate-900 p-6">
-                <p className="text-sm text-slate-400">Orders</p>
-                <h3 className="mt-2 text-3xl font-bold">1,248</h3>
-                <p className="mt-2 text-sm text-green-400">+9.2%</p>
-              </div>
-  
-              <div className="rounded-2xl bg-slate-900 p-6">
-                <p className="text-sm text-slate-400">Conversion Rate</p>
-                <h3 className="mt-2 text-3xl font-bold">12.8%</h3>
-                <p className="mt-2 text-sm text-green-400">+3.1%</p>
-              </div>
-  
-              <div className="rounded-2xl bg-slate-900 p-6">
-                <p className="text-sm text-slate-400">Avg. Order Value</p>
-                <h3 className="mt-2 text-3xl font-bold">$39.20</h3>
-                <p className="mt-2 text-sm text-red-400">-2.4%</p>
-              </div>
+                <div className="rounded-2xl bg-slate-900 p-6">
+                    <p className="text-sm text-slate-400">Total Revenue</p>
+                    <h3 className="mt-2 text-3xl font-bold">
+                    ${totalRevenue.toLocaleString()}
+                    </h3>
+                    <p className="mt-2 text-sm text-green-400">From uploaded data</p>
+                </div>
+
+                <div className="rounded-2xl bg-slate-900 p-6">
+                    <p className="text-sm text-slate-400">Orders</p>
+                    <h3 className="mt-2 text-3xl font-bold">
+                    {totalOrders.toLocaleString()}
+                    </h3>
+                    <p className="mt-2 text-sm text-green-400">From uploaded data</p>
+                </div>
+
+                <div className="rounded-2xl bg-slate-900 p-6">
+                    <p className="text-sm text-slate-400">Customers</p>
+                    <h3 className="mt-2 text-3xl font-bold">
+                    {totalCustomers.toLocaleString()}
+                    </h3>
+                    <p className="mt-2 text-sm text-green-400">From uploaded data</p>
+                </div>
+
+                <div className="rounded-2xl bg-slate-900 p-6">
+                    <p className="text-sm text-slate-400">Avg. Order Value</p>
+                    <h3 className="mt-2 text-3xl font-bold">
+                    ${averageOrderValue.toFixed(2)}
+                    </h3>
+                    <p className="mt-2 text-sm text-slate-400">Calculated</p>
+                </div>
             </div>
   
             {/* Placeholder Panels */}

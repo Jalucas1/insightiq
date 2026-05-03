@@ -25,6 +25,7 @@ export default function UploadPage() {
       dynamicTyping: true,
       complete: (results) => {
         setData(results.data);
+        localStorage.setItem("insightiq-data", JSON.stringify(results.data));
       },
     });
   }
